@@ -7,6 +7,17 @@ use App\Models\User;
 
 class UsersController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth', [
+            'except' => ['show', 'create', 'store']
+        ]);
+
+        $this->middleware('guest', [
+            'only' => ['create']
+        ]);
+    }
+
     // User signup
     public function create()
     {
@@ -38,15 +49,17 @@ class UsersController extends Controller
         return redirect()->route('users.show', [$user]);
     }
 
-    // User edit profits ui
+    // User edit profits show
     public function edit(User $user)
     {
+        $this->authorize('update', $user);
         return view('users.edit', compact('user'));
     }
 
-    // User edit profits method
+    // User edit profits action
     public function update(User $user, Request $request)
     {
+        $this->authorize('update', $user);
         $this->validate($request, [
             'name' => 'required|max:50',
             'password' => 'nullable|confirmed|min:6'
